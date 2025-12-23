@@ -1,11 +1,14 @@
 #include <fstream>
 #include <iostream>
+#include <ostream>
+#include <system_error>
 #include <termios.h>
 #include <unistd.h>
 #include <cstdlib>
 #include <filesystem>
 #include <string>
 
+void ShowKeyStrokes();
 
 void CreateFolder(){
 
@@ -14,12 +17,58 @@ void CreateFolder(){
 
     std::filesystem::path dir = std::filesystem::path(home) / "SavedNotes";
 
-    if(std::filesystem::create_directory(dir)){
+    if(std::filesystem::create_directories(dir)){
         std::cout << "Directory: " << dir << " Has Been Created" << std::endl;
     }else{
         std::cout << "Directory " << dir << " already exists or could not be created." << std::endl;
     }
 }
+
+void DisplayNotes(){
+    const char* home = std::getenv("HOME");
+
+    std::error_code err;
+
+    std::filesystem::path dir = std::filesystem::path(home) / "SavedNotes";
+
+    for(const auto& entry : std::filesystem::directory_iterator(dir, err)){
+        std::cout << entry.path().filename().string() << std::endl;
+    }
+}
+
+void OpenFile(){
+    
+}
+
+void CreateNewFile(){
+    const char* home = std::getenv("HOME");
+
+    std::error_code err;
+
+    std::filesystem::path dir = std::filesystem::path(home) / "SavedNotes";
+
+    ShowKeyStrokes();
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    std::string FileName;
+    std::cout << "Please enter a name for the file: ";
+    std::getline(std::cin, FileName);
+
+    for(const auto& entry : std::filesystem::directory_iterator(dir, err)){
+       if(entry.path().filename().string() == FileName){
+            std::cout << "File Already Exist" << std::endl;
+            return;
+       }
+    }
+
+    std::filesystem::path Note = dir / FileName;
+    std::ofstream CreatedNote(Note);
+
+    std::string command = "nvim \"" + Note.string() + "\"";
+    std::system(command.c_str());
+}
+
 
 void HideKeyStrokes(){
     termios attr;
@@ -49,17 +98,20 @@ int DisplayOptions(){
     HideKeyStrokes();
     
     int Input;
+    std::cout << "Chosen Option: ";
     std::cin >> Input;
 
     switch(Input){
         case 1:
-            std::cout << "Choose New File" << std::endl;
+            std::cout << "Choosen New File" << std::endl;
+            CreateNewFile();
             break;
         case 2:
-            std::cout << "Choose Open File" << std::endl;
+            std::cout << "Choosen Open File" << std::endl;
             break;
         case 3:
-            std::cout << "Choose Display Files" << std::endl;
+            std::cout << "Choosen Display Files" << std::endl;
+            DisplayNotes();
             break;
         default:
             std::cout << "Not A Option" << std::endl;
