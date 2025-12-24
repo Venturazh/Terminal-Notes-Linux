@@ -37,7 +37,26 @@ void DisplayNotes(){
 }
 
 void OpenFile(){
-    
+    const char* home = std::getenv("HOME");
+
+    std::filesystem::path dir = std::filesystem::path(home) / "SavedNotes";
+    std::error_code err;
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    DisplayNotes();
+
+    ShowKeyStrokes();
+    std::string FileName;
+    std::cout << "Please enter a name for the file you want to open: ";
+    std::getline(std::cin, FileName);
+
+    std::filesystem::path Note = dir / FileName;
+
+    std::cout << Note;
+
+    std::string command = "nvim \"" + Note.string() + "\"";
+    std::system(command.c_str());
 }
 
 void CreateNewFile(){
@@ -108,6 +127,7 @@ int DisplayOptions(){
             break;
         case 2:
             std::cout << "Choosen Open File" << std::endl;
+            OpenFile();
             break;
         case 3:
             std::cout << "Choosen Display Files" << std::endl;
