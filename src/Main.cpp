@@ -55,7 +55,15 @@ void OpenFile(){
 
     std::cout << Note;
 
-    std::string command = "nvim \"" + Note.string() + "\"";
+    std::string command;
+
+    try{
+        command = "nvim \"" + Note.string() + "\"";
+    }
+    catch(const std::runtime_error& e) {
+        std::cout << e.what() << std::endl;
+        return;
+    }
     std::system(command.c_str());
 }
 
@@ -84,7 +92,15 @@ void CreateNewFile(){
     std::filesystem::path Note = dir / FileName;
     std::ofstream CreatedNote(Note);
 
-    std::string command = "nvim \"" + Note.string() + "\"";
+    std::string command;
+
+    try{
+        command = "nvim \"" + Note.string() + "\"";
+    }
+    catch(const std::runtime_error& e) {
+        std::cout << e.what() << std::endl;
+        return;
+    }
     std::system(command.c_str());
 }
 
@@ -147,7 +163,7 @@ int DisplayOptions(){
 int main(){
 
     CreateFolder();
-
+    
     DisplayOptions();
 
     return 0;
